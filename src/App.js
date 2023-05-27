@@ -1,22 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { useCallback, useEffect, useState } from "react";
+import "./App.css";
+import Photos from "./components/Photos";
+import axios from "axios";
 
 function App() {
+  const [photos, setPhotos] = useState([]);
+
+  const fetchPostHandler = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/photos"
+      );
+      console.log(response);
+
+      const transformedPost = response.data.map((postData) => {
+        return {
+          id: postData.id,
+          albumIdData: postData.albumId,
+          thumbnailUrlData: postData.thumbnailUrl,
+          titleData: postData.title,
+        };
+      });
+      setPhotos(transformedPost);
+    } catch (error) {
+      console.log(error);
+    }
+  },[]);
+
+  useEffect(() => {
+    fetchPostHandler();
+  }, [fetchPostHandler]);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <button onClick={fetchPostHandler}>Get Post</button>
+        <Photos post={photos} />
       </header>
     </div>
   );
